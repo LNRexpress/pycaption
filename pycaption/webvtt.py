@@ -9,7 +9,7 @@ from .base import (
     BaseReader, BaseWriter, CaptionSet, CaptionList, Caption, CaptionNode
 )
 
-from .geometry import Layout
+from .geometry import (Layout, Padding, Size, UnitEnum)
 
 from .exceptions import (
     CaptionReadError, CaptionReadSyntaxError, CaptionReadNoCaptions,
@@ -336,6 +336,12 @@ class WebVTTWriter(BaseWriter):
         if not already_relative:
             layout = layout.as_percentage_of(
                 self.video_width, self.video_height)
+
+        if self.apply_cea608_padding and not layout.padding:
+            layout.padding = Padding(Size(0, UnitEnum.PERCENT),
+                                     Size(0, UnitEnum.PERCENT),
+                                     Size(10, UnitEnum.PERCENT),
+                                     Size(0, UnitEnum.PERCENT))
 
         # Ensure that when there's a left offset the caption is not pushed out
         # of the screen. If the execution got this far it means origin and
