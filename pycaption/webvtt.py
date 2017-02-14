@@ -205,6 +205,7 @@ class WebVTTWriter(BaseWriter):
     global_layout = None
     video_width = None
     video_height = None
+    apply_cea608_padding = False
 
     def write(self, caption_set):
         """
