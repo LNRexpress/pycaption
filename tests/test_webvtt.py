@@ -47,10 +47,10 @@ class WebVTTReaderTestCase(unittest.TestCase):
             "annotation</rt></ruby> <v Audry><b>Yes</b>, indeed!"
         )
         expected = (
-            "Wikipedia is a great adventure. It may have "
-            "its shortcomings, but it is the largest collective "
+            "<b>Wikipedia</b> is a great adventure. <i>It may have "
+            "its shortcomings</i>, but it is<u> the largest</u> collective "
             "knowledge construction endevour base text annotation"
-            " Audry: Yes, indeed!"
+            " Audry: <b>Yes</b>, indeed!"
         )
         self.assertEqual(result, expected)
 
