@@ -37,7 +37,7 @@ DFXP_DEFAULT_STYLE = {
 
 DFXP_DEFAULT_REGION = Layout(
     alignment=Alignment(
-        HorizontalAlignmentEnum.CENTER, VerticalAlignmentEnum.BOTTOM)
+        HorizontalAlignmentEnum.START, VerticalAlignmentEnum.BOTTOM)
 )
 
 DFXP_DEFAULT_STYLE_ID = 'default'
