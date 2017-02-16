@@ -24,9 +24,10 @@ from pycaption.geometry import HorizontalAlignmentEnum
 TIMING_LINE_PATTERN = re.compile('^(\S+)\s+-->\s+(\S+)(?:\s+(.*?))?\s*$')
 TIMESTAMP_PATTERN = re.compile('^(\d+):(\d{2})(:\d{2})?\.(\d{3})')
 VOICE_SPAN_PATTERN = re.compile('<v(\\.\\w+)* ([^>]*)>')
+STYLE_SPAN_PATTERN = re.compile('<(/?[biu]).*?>')
 OTHER_SPAN_PATTERN = (
     re.compile(
-        '</?([cibuv]|ruby|rt|lang|(\d+):(\d{2})(:\d{2})?\.(\d{3})).*?>'
+        '</?([cv]|(ruby)|(rt)|(lang)|((\d+):(\d{2})(:\d{2})?\.(\d{3}))).*?>'
     )
 )  # These WebVTT tags are stripped off the cues on conversion
 
@@ -106,8 +107,11 @@ class WebVTTReader(BaseReader):
                 if found_timing:
                     if nodes:
                         nodes.append(CaptionNode.create_break())
-                    nodes.append(CaptionNode.create_text(
-                        self._decode(line)))
+                    # Convert the caption line into a set of CaptionNodes and
+                    # append them to the node list
+                    line_as_nodes = self._decode_to_nodes(line)
+                    for line_node in line_as_nodes:
+                        nodes.append(line_node)
                 else:
                     # it's a comment or some metadata; ignore it
                     pass
@@ -178,15 +182,19 @@ class WebVTTReader(BaseReader):
             # Timestamp takes the form of [minutes]:[seconds].[milliseconds]
             return microseconds(0, m[0], m[1], m[3])
 
-    def _decode(self, s):
+    def _decode_to_nodes(self, content):
         """
-        Convert cue text from WebVTT XML-like format to plain unicode.
-        :type s: unicode
+        Converts cue text from WebVTT XML-like format to plain unicode, while
+        also preserving style metadata.
+
+        :type content: unicode
+        :return: array of CaptionNode objects
         """
-        s = s.strip()
+
+        s = content.strip()
         # Covert voice span
         s = VOICE_SPAN_PATTERN.sub('\\2: ', s)
-        # TODO: Add support for other WebVTT tags. For now just strip them
+        # TODO: Add support for WebVTT tags other than 'b', 'i', and 'u'. For now just strip them.
         # off the text.
         s = OTHER_SPAN_PATTERN.sub('', s)
         # Replace WebVTT special XML codes with plain unicode values
@@ -197,7 +205,34 @@ class WebVTTReader(BaseReader):
         s = s.replace('&nbsp;', '\u00a0')
         # Must do ampersand last
         s = s.replace('&amp;', '&')
-        return s
+
+        out = []
+
+        style_info = {
+            'b':  { 'start': True,  'content': { 'bold': True } },
+            '/b': { 'start': False, 'content': { 'bold': True } },
+            'i':  { 'start': True,  'content': { 'italics': True } },
+            '/i': { 'start': False, 'content': { 'italics': True } },
+            'u':  { 'start': True,  'content': { 'underline': True } },
+            '/u': { 'start': False, 'content': { 'underline': True } },
+        }
+
+        pos = 0
+        if re.search(STYLE_SPAN_PATTERN, s) is not None:
+            for match in re.finditer(STYLE_SPAN_PATTERN, s):
+                # Create a text node for the text prior to the tag
+                out.append(CaptionNode.create_text(s[pos:match.start()]))
+                pos = match.end()  # update the position of the plain text substring
+
+                tag = match.group(1)
+
+                if tag in style_info:
+                    out.append(CaptionNode.create_style(style_info[tag]['start'], style_info[tag]['content'], layout_info=None))
+
+        if len(s[pos:]) > 0:
+            out.append(CaptionNode.create_text(s[pos:]))
+
+        return out
 
 
 class WebVTTWriter(BaseWriter):
@@ -205,6 +240,7 @@ class WebVTTWriter(BaseWriter):
     global_layout = None
     video_width = None
     video_height = None
+    force_write_hours = False
 
     def write(self, caption_set):
         """
@@ -237,8 +273,12 @@ class WebVTTWriter(BaseWriter):
         mm, ss = divmod(td.seconds, 60)
         hh, mm = divmod(mm, 60)
         s = "%02d:%02d.%03d" % (mm, ss, td.microseconds/1000)
+
         if hh:
-            s = "%d:%s" % (hh, s)
+            s = "%02d:%s" % (hh, s)
+        elif (not hh) and (self.force_write_hours):
+            s = "%02d:%s" % (0, s)
+
         return s
 
     def _tags_for_style(self, style):
@@ -415,7 +455,7 @@ class WebVTTWriter(BaseWriter):
                     s = ''
                 # ATTENTION: This is where the plain unicode node content is
                 # finally encoded as WebVTT.
-                s += self._encode(node.content) or '&nbsp;'
+                s += self._encode(node.content) or ''
                 current_layout = node.layout_info
             elif node.type_ == CaptionNode.STYLE:
                 resulting_style = self._calculate_resulting_style(node.content, caption_set)
@@ -435,9 +475,9 @@ class WebVTTWriter(BaseWriter):
                 # TODO: Refactor pycaption and eliminate the concept of a
                 # "Style node"
             elif node.type_ == CaptionNode.BREAK:
-                if i > 0 and nodes[i - 1].type_ != CaptionNode.TEXT:
+                if i > 0 and (nodes[i - 1].type_ != CaptionNode.TEXT) and (nodes[i - 1].type_ != CaptionNode.STYLE):
                     s += '&nbsp;'
-                if i == 0:  # cue text starts with a break
+                if i == 0 and (nodes[i].type_ != CaptionNode.STYLE):  # cue text starts with a break
                     s += '&nbsp;'
                 s += '\n'
 

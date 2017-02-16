@@ -245,3 +245,33 @@ SAMPLE_WEBVTT_LAST_CUE_ZERO_START = """WEBVTT
 
 00:00.000 --> 00:12.312
 ( clock ticking )"""
+
+
+SAMPLE_WEBVTT_CUES_WITH_STYLE_CLASSES = """WEBVTT
+
+00:00:00.000 --> 00:00:08.000
+<c.loud>Yellow!</c>
+<i.loud>Yellow!</i>
+<u.loud>Yellow!</u>
+<b.loud>Yellow!</b>
+<u.loud>Yellow!</u>
+<u.loud><b.loud><i.loud>Yellow!</i></b></u>
+<ruby.loud>Yellow! <rt.loud>Yellow!</rt></ruby>
+<v.loud Kathryn>Yellow!</v>
+<lang.loud en>Yellow!</lang>
+"""
+
+WEBVTT_FROM_SAMPLE_WEBVTT_CUES_WITH_STYLE_CLASSES = """WEBVTT
+
+00:00:00.000 --> 00:00:08.000
+Yellow!
+<i>Yellow!</i>
+<u>Yellow!</u>
+<b>Yellow!</b>
+<u>Yellow!</u>
+<u><b><i>Yellow!</i></b></u>
+Yellow! Yellow!
+Kathryn: Yellow!
+Yellow!
+"""
+

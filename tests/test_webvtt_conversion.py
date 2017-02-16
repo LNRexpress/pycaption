@@ -11,7 +11,8 @@ from tests.samples.sami import SAMPLE_SAMI
 from tests.samples.srt import SAMPLE_SRT
 from tests.samples.webvtt import (
     SAMPLE_WEBVTT, SAMPLE_WEBVTT_FROM_WEBVTT,
-    SAMPLE_WEBVTT_FROM_DFXP_WITH_POSITIONING, SAMPLE_WEBVTT_WITH_CUE_SETTINGS
+    SAMPLE_WEBVTT_FROM_DFXP_WITH_POSITIONING, SAMPLE_WEBVTT_WITH_CUE_SETTINGS,
+    SAMPLE_WEBVTT_CUES_WITH_STYLE_CLASSES, WEBVTT_FROM_SAMPLE_WEBVTT_CUES_WITH_STYLE_CLASSES
 )
 from tests.mixins import (
     WebVTTTestingMixIn, DFXPTestingMixIn, SAMITestingMixIn, SRTTestingMixIn
@@ -39,6 +40,13 @@ class WebVTTtoWebVTTTestCase(unittest.TestCase, WebVTTTestingMixIn):
         results = WebVTTWriter().write(caption_set)
         self.assertEqual(
             SAMPLE_WEBVTT_FROM_DFXP_WITH_POSITIONING, results)
+
+    def test_webvtt_to_webvtt_conversion_keeps_basic_styles(self):
+        caption_set = WebVTTReader().read(SAMPLE_WEBVTT_CUES_WITH_STYLE_CLASSES)
+        writer = WebVTTWriter()
+        writer.force_write_hours = True
+        results = writer.write(caption_set)
+        self.assertWebVTTEquals(WEBVTT_FROM_SAMPLE_WEBVTT_CUES_WITH_STYLE_CLASSES, results)
 
 #     # TODO: Write a test that includes a WebVTT file with style tags
 #     # That will fail because the styles used in the cues are not tracked.
