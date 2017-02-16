@@ -130,9 +130,9 @@ class DFXPReader(BaseReader):
                 timesplit[2] += '.000'
             secsplit = timesplit[2].split('.')
             if len(timesplit) > 3:
-                secsplit.append((int(timesplit[3]) / 30) * 100)
+                secsplit[1] = '{0}'.format(int((float(timesplit[3]) / 30.0) * 1000.0) % 1000)
             while len(secsplit[1]) < 3:
-                secsplit[1] += '0'
+                secsplit[1] = '0' + secsplit[1]
             microseconds = (int(timesplit[0]) * 3600000000 +
                             int(timesplit[1]) * 60000000 +
                             int(secsplit[0]) * 1000000 +
