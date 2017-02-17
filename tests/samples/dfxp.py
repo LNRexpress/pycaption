@@ -10,7 +10,7 @@ SAMPLE_DFXP = """\
           tts:fontSize="10pt" tts:textAlign="center"/>
   </styling>
   <layout>
-  <region tts:displayAlign="after" tts:textAlign="center" xml:id="bottom"></region>
+  <region tts:displayAlign="after" tts:textAlign="start" xml:id="bottom"></region>
   </layout>
  </head>
  <body>
