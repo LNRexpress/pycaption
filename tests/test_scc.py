@@ -5,7 +5,7 @@ from pycaption.geometry import UnitEnum, HorizontalAlignmentEnum, VerticalAlignm
 from pycaption.scc.specialized_collections import (InstructionNodeCreator,
                                                    TimingCorrectingCaptionList)
 
-from pycaption import SCCReader, CaptionReadNoCaptions
+from pycaption import SCCReader, CaptionNode, CaptionReadNoCaptions
 from pycaption.scc.state_machines import DefaultProvidingPositionTracker
 
 from tests.samples.scc import (
@@ -14,7 +14,7 @@ from tests.samples.scc import (
     SAMPLE_SCC_WITH_ITALICS, SAMPLE_SCC_EMPTY, SAMPLE_SCC_ROLL_UP_RU2,
     SAMPLE_SCC_PRODUCES_BAD_LAST_END_TIME, SAMPLE_NO_POSITIONING_AT_ALL_SCC,
     SAMPLE_SCC_NO_EXPLICIT_END_TO_LAST_CAPTION, SAMPLE_SCC_EOC_FIRST_COMMAND,
-    SAMPLE_SCC_SPACE_PRIOR_TO_ITALIC_COMMAND
+    SAMPLE_SCC_SPACE_PRIOR_TO_ITALIC_COMMAND, SAMPLE_SCC_ITALICS_MIDROW_CODE
 )
 
 TOLERANCE_MICROSECONDS = 500 * 1000
@@ -172,9 +172,39 @@ class SCCReaderTestCase(unittest.TestCase):
 
         caption = captions[0]
         self.assertIsNotNone(caption.nodes)
-        self.assertEqual(4, len(caption.nodes))
+        self.assertEqual(5, len(caption.nodes))
         self.assertIsNotNone(caption.nodes[0].content)
         self.assertEqual('[Chuck] ', caption.nodes[0].content)
+
+    def test_space_inserted_for_italics_midrow_code(self):
+        caption_set = SCCReader().read(
+            SAMPLE_SCC_ITALICS_MIDROW_CODE
+        )
+
+        self.assertIsNotNone(caption_set)
+        self.assertIsNotNone(caption_set.get_languages())
+        self.assertEqual(1, len(caption_set.get_languages()))
+        self.assertEqual('en-US', caption_set.get_languages()[0])
+
+        captions = caption_set.get_captions('en-US')
+        self.assertIsNotNone(captions)
+        self.assertEqual(1, len(captions))
+        self.assertIsNotNone(captions[0])
+
+        caption = captions[0]
+        self.assertIsNotNone(caption.nodes)
+        self.assertEqual(7, len(caption.nodes))
+        self.assertIsNotNone(caption.nodes[0].content)
+        self.assertIsNotNone(caption.nodes[1].content)
+        self.assertEqual('from', caption.nodes[0].content)
+        self.assertEqual(' ', caption.nodes[1].content)
+        self.assertEqual(CaptionNode.STYLE, caption.nodes[2].type_)
+        self.assertTrue(caption.nodes[2].start)
+        self.assertEqual('Zall Good', caption.nodes[3].content)
+        self.assertEqual(CaptionNode.BREAK, caption.nodes[4].type_)
+        self.assertEqual('with Alexis G. Zall.', caption.nodes[5].content)
+        self.assertEqual(CaptionNode.STYLE, caption.nodes[6].type_)
+        self.assertFalse(caption.nodes[6].start)
 
 
 class CoverageOnlyTestCase(unittest.TestCase):

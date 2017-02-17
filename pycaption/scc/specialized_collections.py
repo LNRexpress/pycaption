@@ -622,6 +622,10 @@ def _format_italics(collection):
     # removes pairs of italics nodes that don't do anything noticeable
     new_collection = _remove_noop_italics(new_collection)
 
+    # adds spaces prior to mid-row italics-on commands
+    # (per FCC CFR part 15.119, section h.i)
+    new_collection = _insert_spaces_for_midrow_italics(new_collection)
+
     return new_collection
 
 
@@ -829,4 +833,32 @@ def _ensure_final_italics_node_closes(collection):
                 turn_on=False
             )
         )
+    return new_collection
+
+def _insert_spaces_for_midrow_italics(collection):
+    """FCC CFR part 15.119, section h.i states that mid-row italics-on commands
+    shall be replaced with a space character.  This method adds a space to the
+    list of _InstructionNode objects for each mid-row italics-on node in
+    the source list.
+
+     :type collection: list[_InstructionNode]
+     :rtype: list[_InstructionNode]
+    """
+    new_collection = []
+
+    for node in collection:
+        if len(new_collection) == 0:
+            new_collection.append(node)
+            continue
+
+        if (new_collection[-1].is_text_node() and
+                new_collection[-1].text != ' ' and
+                node.is_italics_node() and
+                node.sets_italics_on()):
+            n = _InstructionNode.create_text(node.position, u' ')
+            new_collection.append(n)
+
+        new_collection.append(node)
+
+
     return new_collection
