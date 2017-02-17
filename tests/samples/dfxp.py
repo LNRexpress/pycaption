@@ -820,7 +820,7 @@ SAMPLE_DFXP_FROM_SCC_OUTPUT = """<?xml version="1.0" encoding="utf-8"?>
    <style tts:color="white" tts:fontFamily="monospace" tts:fontSize="1c" xml:id="default"/>
   </styling>
   <layout>
-   <region tts:displayAlign="after" tts:textAlign="center" xml:id="bottom"/>
+   <region tts:displayAlign="after" tts:textAlign="start" xml:id="bottom"/>
    <region tts:displayAlign="before" tts:origin="0% 80%" tts:textAlign="left" xml:id="r0"/>
    <region tts:displayAlign="before" tts:origin="37.5% 0%" tts:textAlign="left" xml:id="r1"/>
    <region tts:displayAlign="before" tts:origin="75% 20%" tts:textAlign="left" xml:id="r2"/>
@@ -891,7 +891,7 @@ SAMPLE_DFXP_WITH_PROPERLY_CLOSING_SPANS_OUTPUT = """\
    <style tts:color="white" tts:fontFamily="monospace" tts:fontSize="1c" xml:id="default"/>
   </styling>
   <layout>
-   <region tts:displayAlign="after" tts:textAlign="center" xml:id="bottom"/>
+   <region tts:displayAlign="after" tts:textAlign="start" xml:id="bottom"/>
    <region tts:displayAlign="before" tts:extent="87.5% 13.33%" tts:origin="12.5% 86.67%" tts:textAlign="left" xml:id="r0"/>
    <region tts:displayAlign="before" tts:extent="75% 13.33%" tts:origin="25% 86.67%" tts:textAlign="left" xml:id="r1"/>
    <region tts:displayAlign="before" tts:extent="50% 13.33%" tts:origin="50% 86.67%" tts:textAlign="left" xml:id="r2"/>
