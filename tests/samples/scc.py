@@ -292,3 +292,14 @@ Scenarist_SCC V1.0
 
 00:00:01:06     942c
 """
+
+
+SAMPLE_SCC_ITALICS_MIDROW_CODE = """\
+Scenarist_SCC V1.0
+
+00:00:08:07     942c
+
+00:00:20:02     9420 94ae 9454 91b9 e6f2 ef6d 91ae da61 ecec 20c7 efef 6480 94f2 91b9 91b9 f7e9 f468 20c1 ece5 f8e9 7320 c7ae 20da 61ec ecae 942c 8080 8080 942f
+
+00:00:21:23     942c
+"""
