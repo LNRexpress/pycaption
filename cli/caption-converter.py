@@ -57,8 +57,8 @@ def main():
 
         # If the source file was an SCC file, then apply padding to the caption positions to ensure the captions
         # appear in the safe caption area.
-        if type(reader) is SCCReader:
-            writer.apply_cea608_padding = True
+        #if type(reader) is SCCReader:
+        #    writer.apply_cea608_padding = True
 
         f.write(writer.write(captions))
 
